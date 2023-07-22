@@ -13,7 +13,6 @@ int lsh_launch_program(char *program)
     BUILTIN_STATUS status = lsh_launch_builtin(parsed_command);
     if (status != BUILTIN_NOT_FOUND) exit(EXIT_SUCCESS);
 
-    printf("Launching program\n");
     int execution_status = execvp(parsed_command[0], parsed_command);
     free(parsed_command);
 
