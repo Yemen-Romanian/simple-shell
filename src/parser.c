@@ -6,7 +6,6 @@
  */
 char *lsh_read_line(void)
 {
-#ifdef LSH_USE_STD_GETLINE
 	char *line = NULL;
 	ssize_t bufsize = 0; // have getline allocate a buffer for us
 	if (getline(&line, &bufsize, stdin) == -1) 
@@ -22,61 +21,29 @@ char *lsh_read_line(void)
 		}
 	}
 	return line;
-#else
-#define LSH_RL_BUFSIZE 1024
-	int bufsize = LSH_RL_BUFSIZE;
-	int position = 0;
-	char *buffer = malloc(sizeof(char) * bufsize);
-	int c;
-
-	if (!buffer) 
-	{
-		fprintf(stderr, "lsh: allocation error\n");
-		exit(EXIT_FAILURE);
-	}
-
-	while (1) 
-	{
-		// Read a character
-		c = getchar();
-
-		if (c == EOF) 
-		{
-			exit(EXIT_SUCCESS);
-		} 
-		else if (c == '\n') 
-		{
-			buffer[position] = '\0';
-			return buffer;
-		} 
-		else 
-		{
-			buffer[position] = c;
-		}
-		position++;
-
-		// If we have exceeded the buffer, reallocate.
-		if (position >= bufsize) 
-		{
-			bufsize += LSH_RL_BUFSIZE;
-			buffer = realloc(buffer, bufsize);
-			if (!buffer) {
-			fprintf(stderr, "lsh: allocation error\n");
-			exit(EXIT_FAILURE);
-			}
-		}
-	}
-#endif
 }
 
-#define LSH_TOK_BUFSIZE 64
-#define LSH_TOK_DELIM " \t\r\n\a"
 /**
    @brief Split a line into tokens (very naively).
    @param line The line.
    @return Null-terminated array of tokens.
  */
-char **lsh_split_line(char *line)
+char **lsh_parse_commands(char *line)
+{
+	char ** commands = lsh_split_line(line, LSH_PIPE_DELIM);
+	char* command;
+	for (int commands_count = 0; commands[commands_count] != NULL; commands_count++)
+		commands[commands_count] = trim_str(commands[commands_count]);
+
+	return commands;
+}
+
+char **lsh_parse_one_command(char *command)
+{
+	return lsh_split_line(command, LSH_TOK_DELIM);
+}
+
+static char **lsh_split_line(char *line, const char *delimiter)
 {
 	int bufsize = LSH_TOK_BUFSIZE, position = 0;
 	char **tokens = malloc(bufsize * sizeof(char*));
@@ -88,7 +55,7 @@ char **lsh_split_line(char *line)
 		exit(EXIT_FAILURE);
 	}
 
-	token = strtok(line, LSH_TOK_DELIM);
+	token = strtok(line, delimiter);
 	while (token != NULL)
 	{
 		tokens[position] = token;
@@ -107,7 +74,7 @@ char **lsh_split_line(char *line)
 			}
 		}
 
-		token = strtok(NULL, LSH_TOK_DELIM);
+		token = strtok(NULL, delimiter);
 	}
 	tokens[position] = NULL;
 	return tokens;

@@ -3,4 +3,4 @@ CC=gcc
 TARGET_NAME=lsh
 
 all:
-	$(CC) $(INC) -o $(TARGET_NAME) src/builtins.c src/parser.c src/processes.c src/main.c
+	$(CC) -g $(INC) -o $(TARGET_NAME) src/builtins.c src/parser.c src/processes.c src/utils.c src/main.c

@@ -3,19 +3,29 @@
 
 #include <stdio.h>
 #include <unistd.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef enum
+{
+    BUILTIN_SUCCESS,
+    BUILTIN_FAILURE,
+    BUILTIN_NOT_FOUND
+} BUILTIN_STATUS;
 
 /*
   Function Declarations for builtin shell commands:
  */
-int lsh_cd(char **args);
-int lsh_help(char **args);
-int lsh_exit(char **args);
-int lsh_num_builtins();
+static BUILTIN_STATUS lsh_cd(char **args);
+static BUILTIN_STATUS lsh_help(char **args);
+static BUILTIN_STATUS lsh_exit(char **args);
+static int lsh_num_builtins();
+BUILTIN_STATUS lsh_launch_builtin(char **);
 
 /*
   List of builtin commands, followed by their corresponding functions.
  */
 extern const char *builtin_str[];
-extern const int (*builtin_func[]) (char **);
+extern const BUILTIN_STATUS (*builtin_func[]) (char **);
 
 #endif

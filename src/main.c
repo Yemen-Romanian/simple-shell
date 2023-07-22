@@ -28,13 +28,13 @@ void lsh_loop(void)
     {
         printf("> ");
         line = lsh_read_line();
-        args = lsh_split_line(line);
+        args = lsh_parse_commands(line);
         status = lsh_execute(args);
 
         free(line);
         free(args);
     } 
-    while (status);
+    while (!status);
 }
 
 /**
